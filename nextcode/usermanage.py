@@ -139,11 +139,15 @@ class KeycloakSession:
         password=None,
         realm="wuxinextcode.com",
         client_id="api-key-client",
+        allow_insecure=False
     ):
         password = password or os.environ.get("KEYCLOAK_PASSWORD")
         if not password:
             raise AuthServerError(f"User {username} needs an admin password")
-        self.root_url = "https://{}".format(host_from_url(root_url))
+        if allow_insecure and "http://" in root_url:
+            self.root_url = "http://{}".format(host_from_url(root_url))
+        else:
+            self.root_url = "https://{}".format(host_from_url(root_url))
         self.realm = realm
         self.auth_server = self._get_auth_server()
         self.session = _get_admin_keycloak_session(self.auth_server, username, password)
